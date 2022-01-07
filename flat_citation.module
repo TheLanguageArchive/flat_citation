@@ -1,0 +1,54 @@
+<?php
+/**
+ * @file
+ * Flat Citation
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function flat_citation_block_info()
+{
+    return array(
+      'flat_citation' => array(
+        'visibility' => BLOCK_VISIBILITY_LISTED,
+        'pages' => 'islandora/object/*',
+        'cache' => DRUPAL_CACHE_PER_PAGE,
+        'info' => t('FLAT citation from CMDI metadata'),
+      ),
+    );
+}
+  
+function flat_citation_get_citation(AbstractObject $object)
+{
+
+    module_load_include('inc', 'flat_citation', 'includes/CitationGenerator');
+
+    $generator       = new CitationGenerator();
+    $citation = $generator->generate($object->id);
+
+    return $citation;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function flat_citation_block_view()
+{
+
+    $to_render = array();
+
+    $object = menu_get_object('islandora_object', 2);
+
+    if ($object) {
+        $citation = flat_citation_get_citation($object);
+
+        $result = "<p>" . $citation . "</p>";
+
+
+        if (isset($result)) {
+            $to_render['content'] = $result;
+        }
+    }
+    return $to_render;
+}

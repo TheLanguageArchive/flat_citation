@@ -1,0 +1,6 @@
+name = "FLAT Citation"
+description = "A FLAT module for generating a citation based on available CMDI metadata"
+dependencies[] = islandora
+package = FLAT
+core = 7.x
+version = 7.x-0.1-dev
