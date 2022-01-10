@@ -246,6 +246,15 @@ class CitationGenerator
 
         $no_citation_message = "A citation could not be generated automatically with the available metadata. Please contact the archive staff for help on how to cite this resource.";
 
+        $current_path = current_path();
+
+        // hide citation if not on object view page (path has additional segment)
+        $hide = preg_match('/.*islandora\/object\/.+\/.+/', $current_path);
+
+        if ($hide) {
+            return "";
+        }
+        
         $ancestors = $this->ancestors($pid);
 
         if (!empty($ancestors)) {
@@ -515,7 +524,9 @@ class CitationGenerator
             }
 
             else {
-                $result .= "<div class=\"flat-citation\"><p>" . $no_citation_message . "</p></div>";
+                //$result .= "<div class=\"flat-citation\"><p>" . $no_citation_message . "</p></div>";
+                $result = "";
+
             }
 
             return $result;
