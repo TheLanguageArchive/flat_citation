@@ -236,6 +236,7 @@ class CitationGenerator
         $bundle_title = "";
         $collection_title = "";
         $url = "";
+        $type = "";
         $model = "";
         $top_collection = false;
 
