@@ -157,7 +157,22 @@ class CitationGenerator
     public function ancestorsParams($parent)
     {
 
-        $solrParams['fl'][] = 'PID,dc.title,cmd.Contributor,cmd.CreationDate,cmd.url,RELS_EXT_hasModel_uri_ms,RELS_EXT_isConstituentOf_uri_ms,dc.identifier';
+        $solrParams['fl'][] = 'PID,
+            dc.title,
+            cmd.Contributor,
+            cmd.CreationDate,
+            cmd.url,
+            RELS_EXT_hasModel_uri_ms,
+            RELS_EXT_isConstituentOf_uri_ms,
+            dc.identifier,
+            CMD_Components_lat-corpus_Citation_Authors_ms,
+            CMD_Components_lat-corpus_Citation_Date_ms,
+            CMD_Components_lat-corpus_Citation_Title_ms,
+            CMD_Components_lat-corpus_Citation_Comment_ms,
+            CMD_Components_lat-session_Citation_Authors_ms,
+            CMD_Components_lat-session_Citation_Date_ms,
+            CMD_Components_lat-session_Citation_Title_ms,
+            CMD_Components_lat-session_Citation_Comment_ms';
 
         return $solrParams;
     }
@@ -229,8 +244,12 @@ class CitationGenerator
     public function generate($pid)
     {
 
+        $time_pre = microtime(true);
+
+
         $today = date("Y-m-d");
         $authors = "[author(s)]"; // default value for authors. In case author info cannot be found, we still show the remainder of the citation.
+        $overruling_authors = "";
         $date = "";
         $title = "";
         $bundle_title = "";
@@ -297,7 +316,19 @@ class CitationGenerator
 
                 // title and url of the current pid
 
-                if (array_key_exists('dc.title', $info[$key])) {
+                if (array_key_exists('CMD_Components_lat-corpus_Citation_Title_ms', $info[$key])) {
+
+                    $title = $info[$key]['CMD_Components_lat-corpus_Citation_Title_ms'][0];
+
+                }
+
+                elseif (array_key_exists('CMD_Components_lat-session_Citation_Title_ms', $info[$key])) {
+
+                    $title = $info[$key]['CMD_Components_lat-session_Citation_Title_ms'][0];
+                    
+                }
+
+                elseif (array_key_exists('dc.title', $info[$key])) {
 
                     $title = $info[$key]['dc.title'][0];
 
@@ -309,22 +340,54 @@ class CitationGenerator
 
                 }
 
+                
+                // get first citation comment bottom up (in case of file, we'll check later at the bundle level)
+
+                foreach ($ancestors as $ancestor) {
+
+                    $key = array_search($ancestor, array_column($info, 'PID'));
+
+                    if (array_key_exists('CMD_Components_lat-corpus_Citation_Comment_ms', $info[$key])) {
+
+                        $comment = $info[$key]['CMD_Components_lat-corpus_Citation_Comment_ms'][0];
+                        break;
+
+                    }
+                }
+
 
 
                 if ($type == "bundle" OR $type == "file") {
 
                     // find authors(s) bottom up
 
+                    // first see whether any overruling citation exists in the metadata up the hierarchy
+
                     foreach ($ancestors as $ancestor) {
 
                         $key = array_search($ancestor, array_column($info, 'PID'));
 
-                        if (array_key_exists('cmd.Contributor', $info[$key])) {
+                        if (array_key_exists('CMD_Components_lat-corpus_Citation_Authors_ms', $info[$key])) {
 
-                            $contributors = $info[$key]['cmd.Contributor'];
-                            $authors = $this->authorsList($contributors);
+                            $overruling_authors = $info[$key]['CMD_Components_lat-corpus_Citation_Authors_ms'][0];
+                            $authors = $overruling_authors;
                             break;
 
+                        }
+                    }
+
+                    if (empty($overruling_authors)) {
+
+                        foreach ($ancestors as $ancestor) {
+
+
+                            if (array_key_exists('cmd.Contributor', $info[$key])) {
+
+                                $contributors = $info[$key]['cmd.Contributor'];
+                                $authors = $this->authorsList($contributors);
+                                break;
+
+                            }
                         }
                     }
 
@@ -335,19 +398,36 @@ class CitationGenerator
 
                         $key = array_search($ancestor, array_column($info, 'PID'));
 
-                        if (array_key_exists('cmd.CreationDate', $info[$key])) {
+                        if (array_key_exists('CMD_Components_lat-corpus_Citation_Date_ms', $info[$key])) {
 
-                            $date_value = $info[$key]['cmd.CreationDate'][0];
-                            if (($date_value == "Unspecified") OR ($date_value == "Unknown")) {
-                                $date = "Date unknown";
-                            }
-                            else {
-                                // only the year
-                                $date = substr($date_value, 0, 4);
-                            }
+                            $overruling_date = $info[$key]['CMD_Components_lat-corpus_Citation_Date_ms'][0];
+                            $date = $overruling_date;
                             break;
 
                         }
+                    }
+
+                    if (empty($overruling_date)) {
+
+                        foreach ($ancestors as $ancestor) {
+
+                            $key = array_search($ancestor, array_column($info, 'PID'));
+
+                            if (array_key_exists('cmd.CreationDate', $info[$key])) {
+
+                                $date_value = $info[$key]['cmd.CreationDate'][0];
+                                if (($date_value == "Unspecified") OR ($date_value == "Unknown")) {
+                                    $date = "Date unknown";
+                                }
+                                else {
+                                    // only the year
+                                    $date = substr($date_value, 0, 4);
+                                }
+                                break;
+
+                            }
+                        }
+
                     }
 
                 }
@@ -384,34 +464,100 @@ class CitationGenerator
 
                         $parentkey = array_search($parent , array_column($info, 'PID'));
 
+                        // get parent (=bundle) title
+                        // first see whether any overruling citation exists in the metadata
+                        if (array_key_exists('CMD_Components_lat-session_Citation_Title_ms', $parentinfo[$parentkey])) {
+
+                            $bundle_title = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Title_ms'][0];
+
+                        }
+
+                        else {
+
+                            if (array_key_exists('dc.title', $parentinfo[$parentkey])) {
+
+                                $bundle_title = $parentinfo[$parentkey]['dc.title'][0];
+
+                            }
+                        }
+
                         // get parent date
-                        if (array_key_exists('cmd.CreationDate', $parentinfo[$parentkey])) {
+                        // first see whether any overruling citation exists in the metadata
+                        if (array_key_exists('CMD_Components_lat-session_Citation_Date_ms', $parentinfo[$parentkey])) {
 
-                            $date_value = $parentinfo[$parentkey]['cmd.CreationDate'][0];
-                            if (($date_value == "Unspecified") OR ($date_value == "Unknown")) {
-                                $date = "Date unknown";
-                            }
-                            else {
-                                // only the year
-                                $date = substr($date_value, 0, 4);
-                            }
+                            $overruling_date = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Date_ms'][0];
+                            $date = $overruling_date;
 
                         }
 
-                        // get parent title
-                        if (array_key_exists('dc.title', $parentinfo[$parentkey])) {
+                        else {
+                            foreach ($ancestors as $ancestor) {
+                                $key = array_search($ancestor, array_column($info, 'PID'));
+                                if (array_key_exists('CMD_Components_lat-corpus_Citation_Date_ms', $info[$key])) {
 
-                            $bundle_title = $parentinfo[$parentkey]['dc.title'][0];
-
+                                    $overruling_date = $info[$key]['CMD_Components_lat-corpus_Citation_Date_ms'][0];
+                                    $date = $overruling_date;
+                                    break;
+                                }
+                            }
                         }
+
+
+                        if (empty($overruling_date)) {
+                            if (array_key_exists('cmd.CreationDate', $parentinfo[$parentkey])) {
+
+                                $date_value = $parentinfo[$parentkey]['cmd.CreationDate'][0];
+                                if (($date_value == "Unspecified") OR ($date_value == "Unknown")) {
+                                    $date = "Date unknown";
+                                }
+                                else {
+                                    // only the year
+                                    $date = substr($date_value, 0, 4);
+                                }
+
+                            }
+                        }
+
+
 
                         // get parent authors
-                        if (array_key_exists('cmd.Contributor', $parentinfo[$parentkey])) {
+                        // first see whether any overruling citation exists in the metadata, at the bundle level or at higher collection levels
+                        if (array_key_exists('CMD_Components_lat-session_Citation_Authors_ms', $parentinfo[$parentkey])) {
 
-                            $contributors = $parentinfo[$parentkey]['cmd.Contributor'];
-                            $authors = $this->authorsList($contributors);
+                            $overruling_authors = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Authors_ms'][0];
 
                         }
+                        else {
+                            foreach ($ancestors as $ancestor) {
+                                $key = array_search($ancestor, array_column($info, 'PID'));
+                                if (array_key_exists('CMD_Components_lat-corpus_Citation_Authors_ms', $info[$key])) {
+
+                                    $overruling_authors = $info[$key]['CMD_Components_lat-corpus_Citation_Authors_ms'][0];
+                                    $authors = $overruling_authors;
+                                    break;
+                                }
+                            }
+
+                        }
+                        
+                        if (empty($overruling_authors)) {
+                            // no overruling citation exists
+                            if (array_key_exists('cmd.Contributor', $parentinfo[$parentkey])) {
+
+                                $contributors = $parentinfo[$parentkey]['cmd.Contributor'];
+                                $authors = $this->authorsList($contributors);
+
+                            }
+                        }
+
+                        // get parent comment
+                        if (array_key_exists('CMD_Components_lat-session_Citation_Comment_ms', $parentinfo[$parentkey])) {
+
+                            $comment = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Comment_ms'][0];
+
+                        }
+
+
 
                     }
 
@@ -442,44 +588,86 @@ class CitationGenerator
                         $type = "top-collection";
                     }
 
-                    // find contributor(s) and date(s) with a facet query for everything within the selected collection
+                    // first see whether any overruling citation exists in the metadata
 
-                    $query_values[] = format_string('ancestors_ms:("info:fedora/!pid" OR "!pid")', [
-                        '!pid' => $pid,
-                    ]);
+                    foreach ($ancestors as $ancestor) {
+                        $key = array_search($ancestor, array_column($info, 'PID'));
+                        if (array_key_exists('CMD_Components_lat-corpus_Citation_Authors_ms', $info[$key])) {
 
-                    $solrParams['fl'][] = 'PID';
-                    $solrParams['facet'][] = 'true';
-                    $solrParams['facet.mincount'][] = '1';
-                    $solrParams['facet.field'][] = 'cmd.Contributor';
-                    $solrParams['facet.field'][] = 'cmd.CreationDate';
-
-                    $raw_result = $this->query($query_values, $solrParams);
-
-                    $contributors = array_keys($raw_result['facet_counts']['facet_fields']['cmd.Contributor']);
-                    $date_values = array_keys($raw_result['facet_counts']['facet_fields']['cmd.CreationDate']);
-                    if (!empty($date_values)) {
-                        $date = $this->dateRange($date_values);
+                            $overruling_authors = $info[$key]['CMD_Components_lat-corpus_Citation_Authors_ms'][0];
+                            $authors = $overruling_authors;
+                            break;
+                        }
                     }
 
-                    if (!empty($contributors)) {
-                        $authors = $this->authorsList($contributors);
+                    foreach ($ancestors as $ancestor) {
+                        $key = array_search($ancestor, array_column($info, 'PID'));
+                        if (array_key_exists('CMD_Components_lat-corpus_Citation_Date_ms', $info[$key])) {
+
+                            $overruling_date = $info[$key]['CMD_Components_lat-corpus_Citation_Date_ms'][0];
+                            $date = $overruling_date;
+                            break;
+                        }
+                    }
+
+                    if (empty($date) or empty($overruling_authors)) {
+
+                        // find contributor(s) and date(s) with a facet query for everything within the selected collection
+
+                        $query_values[] = format_string('ancestors_ms:("info:fedora/!pid" OR "!pid")', [
+                            '!pid' => $pid,
+                        ]);
+
+                        $solrParams['fl'][] = 'PID';
+                        $solrParams['facet'][] = 'true';
+                        $solrParams['facet.mincount'][] = '1';
+                        $solrParams['facet.field'][] = 'cmd.Contributor';
+                        $solrParams['facet.field'][] = 'cmd.CreationDate';
+                        
+
+                        $raw_result = $this->query($query_values, $solrParams);
+
+                        $contributors = array_keys($raw_result['facet_counts']['facet_fields']['cmd.Contributor']);
+                        $date_values = array_keys($raw_result['facet_counts']['facet_fields']['cmd.CreationDate']);
+                        if (!empty($date_values) and empty($date)) {
+                            $date = $this->dateRange($date_values);
+                        }
+
+                        if (!empty($contributors) and empty($overruling_authors)) {
+                            $authors = $this->authorsList($contributors);
+                        }
+
                     }
 
                 }
 
-                // find the highest ancestor with a cmd.url, this is the top of the collection, then get its dc.title
 
-                $ancestors_top_down = array_reverse($ancestors);
+                if ($type !== "top-collection") {
 
-                foreach ($ancestors_top_down as $ancestor) {
+                    // find the highest ancestor with a cmd.url, this is the top of the collection, then get its title
 
-                    $key = array_search($ancestor, array_column($info, 'PID'));
+                    $ancestors_top_down = array_reverse($ancestors);
 
-                    if (array_key_exists('cmd.url', $info[$key])) {
+                    foreach ($ancestors_top_down as $ancestor) {
 
-                        $collection_title = $info[$key]['dc.title'][0];
-                        break;
+                        $key = array_search($ancestor, array_column($info, 'PID'));
+
+                        if (array_key_exists('cmd.url', $info[$key])) {
+                            // first see whether any overruling citation exists in the metadata
+                            if (array_key_exists('CMD_Components_lat-corpus_Citation_Title_ms', $info[$key])) {
+
+                                $collection_title = $info[$key]['CMD_Components_lat-corpus_Citation_Title_ms'][0];
+                                break;
+
+                            }
+
+                            else {
+
+                                $collection_title = $info[$key]['dc.title'][0];
+                                break;
+                            }
+
+                        }
 
                     }
 
@@ -489,11 +677,15 @@ class CitationGenerator
 
                 // if there is not enough info, return the no_citation_message rather than the partial citation.
                 if (($type == "top-collection") AND (empty($date) OR empty($title) OR empty($url))) {
+                    
                     $result .= $no_citation_message;
+
                 }
 
-                elseif (empty($date) OR empty($title) OR empty($collection_title) OR empty($url)) {
+                elseif (($type !== "top-collection") AND (empty($date) OR empty($title) OR empty($collection_title) OR empty($url))) {
+                    
                     $result .= $no_citation_message;
+               
                 }
 
                 else {
@@ -516,8 +708,13 @@ class CitationGenerator
                         $message .= " Author information could not be extracted automatically for this resource.";
                     }
 
-                    $result .= "<div class=\"well citation\"><p>" . $authors . ". (" . $date . "). " . $object . ". " . $site_name . ". <a href=" . $url. " alt=\"Persistent identifier for object " .
+                    $result .= "<div class=\"well citation\"><p>" . $authors . " (" . $date . "). " . $object . ". " . $site_name . ". <a href=" . $url. " alt=\"Persistent identifier for object " .
                     $title . "\">" . $url . "</a>. (Accessed " . $today . ")</p>";
+
+                    if (!empty($comment)) {
+                        $result .= "<p class=\"comment\">" . $comment . "</p>";
+                    }
+
                     $result .= "<p><i><small>Note: " . $message . "</small></i></p></div>";
 
                 }
