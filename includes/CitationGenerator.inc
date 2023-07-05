@@ -68,12 +68,12 @@ class CitationGenerator
         // Restrict results based on specified namespaces.
         $namespace_list = trim(variable_get('islandora_solr_namespace_restriction', ''));
         if ($namespace_list) {
-           $namespaces = preg_split('/[,|\s]/', $namespace_list);
-           $namespace_array = array();
-           foreach (array_filter($namespaces) as $namespace) {
-              $namespace_array[] = "PID:$namespace\:*";
-           }
-           $solrParams['fq'][] = implode(' OR ', $namespace_array);
+            $namespaces = preg_split('/[,|\s]/', $namespace_list);
+            $namespace_array = array();
+            foreach (array_filter($namespaces) as $namespace) {
+                $namespace_array[] = "PID:$namespace\:*";
+            }
+            $solrParams['fq'][] = implode(' OR ', $namespace_array);
         }
 
         $solrParams['fl'][] = $field;
@@ -81,7 +81,7 @@ class CitationGenerator
         $data  = $this->query('PID:"' . $pid . '"', $solrParams);
 
         if (!array_key_exists($field, $data['response']['docs'][0])) {
-           return;
+            return;
         }
 
         $result = $data['response']['docs'][0][$field];
@@ -90,11 +90,9 @@ class CitationGenerator
             //add pid itself as we also want info about it
 
             array_unshift($result, $pid);
-
         }
 
         return $result;
-
     }
 
     /**
@@ -139,9 +137,7 @@ class CitationGenerator
                 $query_values[] = format_string('PID:("info:fedora/!ancestor_pid" OR "!ancestor_pid")', [
                     '!ancestor_pid' => $ancestor,
                 ]);
-
             }
-
         }
 
         return implode(" OR ", $query_values);
@@ -233,7 +229,7 @@ class CitationGenerator
      */
     public function dateRange($dates)
     {
-	$years = [];
+        $years = [];
         foreach ($dates as $date) {
             // year only
             if (strpos($date, "Un") !== false) {
@@ -248,12 +244,9 @@ class CitationGenerator
 
         if ($firstYear == $lastYear) {
             return $firstYear;
-        }
-
-        else {
+        } else {
             return $firstYear . " - " . $lastYear;
         }
-
     }
 
     /**
@@ -263,7 +256,8 @@ class CitationGenerator
      *
      * @return string
      */
-    public function authorsList($authors) {
+    public function authorsList($authors)
+    {
 
         if (sizeof($authors) <= 1) {
             return implode("", $authors);
@@ -278,7 +272,6 @@ class CitationGenerator
             $all_but_last_authors = array_slice($authors, 0, -1);
             return implode(', ', $all_but_last_authors) . ', and ' . $last_author;
         }
-
     }
 
     /**
@@ -318,7 +311,7 @@ class CitationGenerator
         if ($hide) {
             return "";
         }
-        
+
         $ancestors = $this->ancestors($pid);
 
         if (!empty($ancestors)) {
@@ -328,7 +321,6 @@ class CitationGenerator
             if (empty($info)) {
                 // root collection, no citation needed
                 return;
-
             }
 
             if (!empty($info)) {
@@ -343,7 +335,7 @@ class CitationGenerator
 
                     $models = $info[$key]['RELS_EXT_hasModel_uri_ms'];
 
-                    if (in_array("info:fedora/islandora:collectionCModel", $models) AND !in_array("info:fedora/islandora:sp_cmdiCModel", $models)) {
+                    if (in_array("info:fedora/islandora:collectionCModel", $models) and !in_array("info:fedora/islandora:sp_cmdiCModel", $models)) {
                         // object is a higher level collection that does not have CMDI metadata, no citation needed
                         return;
                     }
@@ -352,10 +344,9 @@ class CitationGenerator
                         $type = "collection";
                     }
 
-                    if (in_array("info:fedora/islandora:compoundCModel", $models) AND !in_array("info:fedora/islandora:collectionCModel", $models)) {
+                    if (in_array("info:fedora/islandora:compoundCModel", $models) and !in_array("info:fedora/islandora:collectionCModel", $models)) {
                         $type = "bundle";
                     }
-
                 }
 
                 // title of the current pid, from overruling citation or otherwise dc.title
@@ -363,37 +354,21 @@ class CitationGenerator
                 if (array_key_exists('CMD_Components_lat-corpus_Citation_Title_ms', $info[$key])) {
 
                     $title = $info[$key]['CMD_Components_lat-corpus_Citation_Title_ms'][0];
-
-                }
-
-                elseif (array_key_exists('CMD_Components_lat-session_Citation_Title_ms', $info[$key])) {
+                } elseif (array_key_exists('CMD_Components_lat-session_Citation_Title_ms', $info[$key])) {
 
                     $title = $info[$key]['CMD_Components_lat-session_Citation_Title_ms'][0];
-                    
-                }
-
-                elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Title_ms', $info[$key])) {
+                } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Title_ms', $info[$key])) {
 
                     $title = $info[$key]['CMD_Components_MPI_Collection_Citation_Title_ms'][0];
-
-                }
-
-                elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Title_ms', $info[$key])) {
+                } elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Title_ms', $info[$key])) {
 
                     $title = $info[$key]['CMD_Components_MPI_Bundle_Citation_Title_ms'][0];
-                    
-                }
-
-                elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Title_ms', $info[$key])) {
+                } elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Title_ms', $info[$key])) {
 
                     $title = $info[$key]['CMD_Components_lat-SL-session_Citation_Title_ms'][0];
-                    
-                }
-
-                elseif (array_key_exists('dc.title', $info[$key])) {
+                } elseif (array_key_exists('dc.title', $info[$key])) {
 
                     $title = $info[$key]['dc.title'][0];
-
                 }
 
                 // url of the current pid
@@ -401,10 +376,9 @@ class CitationGenerator
                 if (array_key_exists('cmd.url', $info[$key])) {
 
                     $url = $info[$key]['cmd.url'][0];
-
                 }
 
-                
+
                 // get first citation comment bottom up (in case of file, we'll check later at the bundle level)
 
                 foreach ($ancestors as $ancestor) {
@@ -415,23 +389,15 @@ class CitationGenerator
 
                         $comment = $info[$key]['CMD_Components_lat-corpus_Citation_Comment_ms'][0];
                         break;
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Comment_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Comment_ms', $info[$key])) {
 
                         $comment = $info[$key]['CMD_Components_MPI_Collection_Citation_Comment_ms'][0];
                         break;
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_Citation_Comment_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_Citation_Comment_ms', $info[$key])) {
 
                         $comment = $info[$key]['CMD_Components_lat-SL-corpus_Citation_Comment_ms'][0];
                         break;
-
                     }
-
                 }
 
                 // get related citation bottom up (in case of file, we'll check later at the bundle level)
@@ -444,57 +410,36 @@ class CitationGenerator
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_Authors_ms', $info[$key])) {
 
                         $related_citation_authors = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Authors_ms'][0];
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Authors_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Authors_ms', $info[$key])) {
 
                         $related_citation_authors = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Authors_ms'][0];
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Authors_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Authors_ms', $info[$key])) {
 
                         $related_citation_authors = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Authors_ms'][0];
-
                     }
 
                     // date
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_Date_ms', $info[$key])) {
 
                         $related_citation_date = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Date_ms'][0];
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Date_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Date_ms', $info[$key])) {
 
                         $related_citation_date = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Date_ms'][0];
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Date_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Date_ms', $info[$key])) {
 
                         $related_citation_date = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Date_ms'][0];
-
                     }
 
                     // title
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_Title_ms', $info[$key])) {
 
-                        $related_citation_title = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Date_ms'][0];
+                        $related_citation_title = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Title_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Title_ms', $info[$key])) {
 
-                    }
+                        $related_citation_title = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Title_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Title_ms', $info[$key])) {
 
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Title_ms', $info[$key])) {
-
-                        $related_citation_title = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Date_ms'][0];
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Title_ms', $info[$key])) {
-
-                        $related_citation_title = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Date_ms'][0];
-
+                        $related_citation_title = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Title_ms'][0];
                     }
 
                     // publication
@@ -502,37 +447,25 @@ class CitationGenerator
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_Publication_ms', $info[$key])) {
 
                         $related_citation_publication = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Publication_ms'][0];
-
-                    }
-
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publication_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publication_ms', $info[$key])) {
 
                         $related_citation_publication = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Publication_ms'][0];
-                        
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Publication_ms', $info[$key])) {
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Publication_ms', $info[$key])) {
 
                         $related_citation_publication = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Publication_ms'][0];
-
                     }
 
                     // publisher
 
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_Publisher_ms', $info[$key])) {
-                        
+
                         $related_citation_publisher = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Publisher_ms'][0];
-                    }
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms', $info[$key])) {
 
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms', $info[$key])) {
-                        
                         $related_citation_publisher = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms'][0];
-                    }
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Publisher_ms', $info[$key])) {
 
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Publisher_ms', $info[$key])) {
-                        
                         $related_citation_publisher = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Publisher_ms'][0];
-
                     }
 
                     // PersistentIdentifier
@@ -540,50 +473,34 @@ class CitationGenerator
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
 
                         $related_citation_persistent_identifier = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_PersistentIdentifier_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
 
-                    }
-
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
-                        
                         $related_citation_persistent_identifier = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
 
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
-                        
                         $related_citation_persistent_identifier = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_PersistentIdentifier_ms'][0];
-
                     }
 
                     // comment
 
                     if (array_key_exists('CMD_Components_lat-corpus_RelatedCitation_Comment_ms', $info[$key])) {
-                        
+
                         $related_citation_comment = $info[$key]['CMD_Components_lat-corpus_RelatedCitation_Comment_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Comment_ms', $info[$key])) {
 
-                    }
-
-                    elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Comment_ms', $info[$key])) {
-                        
                         $related_citation_comment = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Comment_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Comment_ms', $info[$key])) {
 
-                    }
-
-                    elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Comment_ms', $info[$key])) {
-                        
                         $related_citation_comment = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Comment_ms'][0];
-
                     }
 
                     if (!empty($related_citation_authors)) {
                         break;
                     }
-
-
                 }
 
 
-                if ($type == "bundle" OR $type == "file") {
+                if ($type == "bundle" or $type == "file") {
 
                     // find authors(s) bottom up
 
@@ -598,17 +515,12 @@ class CitationGenerator
                             $overruling_authors = $info[$key]['CMD_Components_lat-corpus_Citation_Authors_ms'][0];
                             $authors = $overruling_authors;
                             break;
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Authors_ms', $info[$key])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Authors_ms', $info[$key])) {
 
                             $overruling_authors = $info[$key]['CMD_Components_MPI_Collection_Citation_Authors_ms'][0];
                             $authors = $overruling_authors;
                             break;
-                            
                         }
-
                     }
 
                     if (empty($overruling_authors)) {
@@ -622,7 +534,6 @@ class CitationGenerator
                                 $contributors = $info[$key]['cmd.Contributor'];
                                 $authors = $this->authorsList($contributors);
                                 break;
-
                             }
                         }
                     }
@@ -638,17 +549,12 @@ class CitationGenerator
                             $overruling_date = $info[$key]['CMD_Components_lat-corpus_Citation_Date_ms'][0];
                             $date = $overruling_date;
                             break;
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Date_ms', $info[$key])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Date_ms', $info[$key])) {
 
                             $overruling_date = $info[$key]['CMD_Components_MPI_Collection_Citation_Date_ms'][0];
                             $date = $overruling_date;
                             break;
-                            
                         }
-
                     }
 
                     if (empty($overruling_date)) {
@@ -660,20 +566,16 @@ class CitationGenerator
                             if (array_key_exists('cmd.CreationDate', $info[$key])) {
 
                                 $date_value = $info[$key]['cmd.CreationDate'][0];
-                                if (($date_value == "Unspecified") OR ($date_value == "Unknown")) {
+                                if (($date_value == "Unspecified") or ($date_value == "Unknown")) {
                                     $date = "Date unknown";
-                                }
-                                else {
+                                } else {
                                     // only the year
                                     $date = substr($date_value, 0, 4);
                                 }
                                 break;
-
                             }
                         }
-
                     }
-
                 }
 
                 if ($type == "file") {
@@ -690,7 +592,6 @@ class CitationGenerator
                                 $url = $identifier;
                             }
                         }
-
                     }
 
                     // separate info query for bundle, as that is not in ancestors but in "RELS_EXT_isConstituentOf_uri_ms"
@@ -706,33 +607,23 @@ class CitationGenerator
 
                         $parentinfo = $this->ancestorInfo($parent);
 
-                        $parentkey = array_search($parent , array_column($info, 'PID'));
+                        $parentkey = array_search($parent, array_column($info, 'PID'));
 
                         // get parent (=bundle) title
                         // first see whether any overruling citation exists in the metadata at the bundle level
-                        if (array_key_exists('CMD_Components_lat-session_Citation_Title_ms', $parentinfo[$parentkey]))  {
+                        if (array_key_exists('CMD_Components_lat-session_Citation_Title_ms', $parentinfo[$parentkey])) {
 
                             $bundle_title = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Title_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Title_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Title_ms', $parentinfo[$parentkey])) {
 
                             $bundle_title = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_Citation_Title_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Title_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Title_ms', $parentinfo[$parentkey])) {
 
                             $bundle_title = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_Citation_Title_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('dc.title', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('dc.title', $parentinfo[$parentkey])) {
 
                             // no overruling citation, dc.title should always be there
                             $bundle_title = $parentinfo[$parentkey]['dc.title'][0];
-
                         }
 
                         // get parent date
@@ -741,39 +632,29 @@ class CitationGenerator
 
                             $overruling_date = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Date_ms'][0];
                             $date = $overruling_date;
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-session_Citation_Date_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_lat-session_Citation_Date_ms', $parentinfo[$parentkey])) {
 
                             $overruling_date = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Date_ms'][0];
                             $date = $overruling_date;
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-session_Citation_Date_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_lat-session_Citation_Date_ms', $parentinfo[$parentkey])) {
 
                             $overruling_date = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Date_ms'][0];
                             $date = $overruling_date;
-
                         }
 
                         if (empty($overruling_date)) {
-                            
+
                             // no overruling citation in bundle or higher collections. dc.CreationDate value should always be there but could be "Unspecified" or "Unknown"
                             if (array_key_exists('cmd.CreationDate', $parentinfo[$parentkey])) {
 
                                 $date_value = $parentinfo[$parentkey]['cmd.CreationDate'][0];
-                                if (($date_value == "Unspecified") OR ($date_value == "Unknown")) {
+                                if (($date_value == "Unspecified") or ($date_value == "Unknown")) {
                                     $date = "Date unknown";
-                                }
-                                else {
+                                } else {
                                     // only the year
                                     $date = substr($date_value, 0, 4);
                                 }
-
                             }
-
                         }
 
                         // get parent authors
@@ -781,22 +662,15 @@ class CitationGenerator
                         if (array_key_exists('CMD_Components_lat-session_Citation_Authors_ms', $parentinfo[$parentkey])) {
 
                             $overruling_authors = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Authors_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Authors_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Authors_ms', $parentinfo[$parentkey])) {
 
                             $overruling_authors = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_Citation_Authors_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Authors_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Authors_ms', $parentinfo[$parentkey])) {
 
                             $overruling_authors = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_Citation_Authors_ms'][0];
-
                         }
 
-                        
+
                         if (empty($overruling_authors)) {
 
                             // no overruling citation in bundle or higher collections, use cmd.Contributor in case it exists
@@ -804,29 +678,20 @@ class CitationGenerator
 
                                 $contributors = $parentinfo[$parentkey]['cmd.Contributor'];
                                 $authors = $this->authorsList($contributors);
-
                             }
-
                         }
 
                         // get parent comment
-                        
+
                         if (array_key_exists('CMD_Components_lat-session_Citation_Comment_ms', $parentinfo[$parentkey])) {
 
                             $comment = $parentinfo[$parentkey]['CMD_Components_lat-session_Citation_Comment_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Comment_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_Citation_Comment_ms', $parentinfo[$parentkey])) {
 
                             $comment = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_Citation_Comment_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Comment_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_Citation_Comment_ms', $parentinfo[$parentkey])) {
 
                             $comment = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_Citation_Comment_ms'][0];
-
                         }
 
                         // get parent related citation
@@ -834,21 +699,14 @@ class CitationGenerator
                         // authors
 
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_Authors_ms', $parentinfo[$parentkey])) {
-                            
+
                             $related_citation_authors = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_Authors_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Authors_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Authors_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_authors = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_Authors_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Authors_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Authors_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_authors = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_Authors_ms'][0];
-
                         }
 
                         // date
@@ -856,122 +714,79 @@ class CitationGenerator
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_Date_ms', $parentinfo[$parentkey])) {
 
                             $related_citation_date = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_Date_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Date_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Date_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_date = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_Date_ms'][0];
-                        }
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Date_ms', $parentinfo[$parentkey])) {
 
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Date_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_date = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_Date_ms'][0];
-
                         }
 
                         // title
 
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_Title_ms', $parentinfo[$parentkey])) {
-                            
+
                             $related_citation_title = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_Title_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Title_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Title_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_title = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_Title_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Title_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Title_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_title = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_Title_ms'][0];
-
                         }
 
                         // publication
 
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_Publication_ms', $parentinfo[$parentkey])) {
-                            
+
                             $related_citation_publication = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_Publication_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Publication_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Publication_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_publication = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_Publication_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Publication_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Publication_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_publication = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_Publication_ms'][0];
-
                         }
 
                         // publisher
 
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_Publisher_ms', $parentinfo[$parentkey])) {
-                            
+
                             $related_citation_publisher = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_Publisher_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Publisher_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Publisher_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_publisher = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_Publisher_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Publisher_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Publisher_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_publisher = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_Publisher_ms'][0];
-
                         }
 
                         // comment
 
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_Comment_ms', $parentinfo[$parentkey])) {
-                            
+
                             $related_citation_comment = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_Comment_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Comment_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Comment_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_comment = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_Comment_ms'][0];
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Comment_ms', $parentinfo[$parentkey])) {
 
-                        }
-
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Comment_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_comment = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_Comment_ms'][0];
-
                         }
 
                         // persistent identifier
 
                         if (array_key_exists('CMD_Components_lat-session_RelatedCitation_PersistentIdentifier_ms', $parentinfo[$parentkey])) {
-    
+
                             $related_citation_persistent_identifier = $parentinfo[$parentkey]['CMD_Components_lat-session_RelatedCitation_PersistentIdentifier_ms'][0];
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_PersistentIdentifier_ms', $parentinfo[$parentkey])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_PersistentIdentifier_ms', $parentinfo[$parentkey])) {
 
                             $related_citation_persistent_identifier = $parentinfo[$parentkey]['CMD_Components_MPI_Bundle_RelatedCitation_PersistentIdentifier_ms'][0];
-                            
-                        }
+                        } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_PersistentIdentifier_ms', $parentinfo[$parentkey])) {
 
-                        elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_PersistentIdentifier_ms', $parentinfo[$parentkey])) {
-                            
                             $related_citation_persistent_identifier = $parentinfo[$parentkey]['CMD_Components_lat-SL-session_RelatedCitation_PersistentIdentifier_ms'][0];
-
                         }
-
                     }
-
                 }
 
                 if ($type == "collection") {
@@ -989,9 +804,7 @@ class CitationGenerator
                         if (array_key_exists('cmd.url', $info[$key])) {
 
                             $topcollection = false;
-
                         }
-
                     }
 
                     if ($topcollection == true) {
@@ -1010,17 +823,12 @@ class CitationGenerator
                             $overruling_authors = $info[$key]['CMD_Components_lat-corpus_Citation_Authors_ms'][0];
                             $authors = $overruling_authors;
                             break;
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Authors_ms', $info[$key])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Authors_ms', $info[$key])) {
 
                             $overruling_authors = $info[$key]['CMD_Components_MPI_Collection_Citation_Authors_ms'][0];
                             $authors = $overruling_authors;
                             break;
-
                         }
-
                     }
 
                     // dates
@@ -1033,20 +841,15 @@ class CitationGenerator
                             $overruling_date = $info[$key]['CMD_Components_lat-corpus_Citation_Date_ms'][0];
                             $date = $overruling_date;
                             break;
-
-                        }
-
-                        elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Date_ms', $info[$key])) {
+                        } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Date_ms', $info[$key])) {
 
                             $overruling_date = $info[$key]['CMD_Components_MPI_Collection_Citation_Date_ms'][0];
                             $date = $overruling_date;
                             break;
-
                         }
-
                     }
 
-                    if (empty($date) OR empty($overruling_authors)) {
+                    if (empty($date) or empty($overruling_authors)) {
 
                         // no overruling citation for date or authors, find contributor(s) and date(s) with a facet query for everything within the selected collection
 
@@ -1059,7 +862,7 @@ class CitationGenerator
                         $solrParams['facet.mincount'][] = '1';
                         $solrParams['facet.field'][] = 'cmd.Contributor';
                         $solrParams['facet.field'][] = 'cmd.CreationDate';
-                        
+
 
                         $raw_result = $this->query($query_values, $solrParams);
 
@@ -1072,9 +875,7 @@ class CitationGenerator
                         if (!empty($contributors) and empty($overruling_authors)) {
                             $authors = $this->authorsList($contributors);
                         }
-
                     }
-
                 }
 
                 if ($type !== "top-collection") {
@@ -1094,50 +895,34 @@ class CitationGenerator
 
                                 $collection_title = $info[$key]['CMD_Components_lat-corpus_Citation_Title_ms'][0];
                                 break;
-
-                            }
-
-                            elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Title_ms', $info[$key])) {
+                            } elseif (array_key_exists('CMD_Components_MPI_Collection_Citation_Title_ms', $info[$key])) {
 
                                 $collection_title = $info[$key]['CMD_Components_MPI_Collection_Citation_Title_ms'][0];
                                 break;
-
-                            }
-
-                            elseif (array_key_exists('dc.title', $info[$key])) {
+                            } elseif (array_key_exists('dc.title', $info[$key])) {
 
                                 // no overruling citation, take dc.title which should always be there
                                 $collection_title = $info[$key]['dc.title'][0];
                                 break;
-
                             }
-
                         }
-
                     }
-
                 }
 
                 $site_name = variable_get('site_name', "Default site name");
 
                 // if there is not enough info, return the no_citation_message rather than the partial citation.
-                if (($type == "top-collection") AND (empty($date) OR empty($title) OR empty($url))) {
-                    
+                if (($type == "top-collection") and (empty($date) or empty($title) or empty($url))) {
+
                     $result .= $no_citation_message;
+                } elseif (($type !== "top-collection") and (empty($date) or empty($title) or empty($collection_title) or empty($url))) {
 
-                }
-
-                elseif (($type !== "top-collection") AND (empty($date) OR empty($title) OR empty($collection_title) OR empty($url))) {
-                    
                     $result .= $no_citation_message;
-               
-                }
-
-                else {
+                } else {
 
                     // prepare citation output
 
-                    switch($type) {
+                    switch ($type) {
 
                         case "file":
                             $object = "File<i> \"" . $title . "\"</i> in collection \"" . $collection_title . "\", bundle \"" . $bundle_title . "\"";
@@ -1155,35 +940,54 @@ class CitationGenerator
                         $message .= " Author information could not be extracted automatically for this resource.";
                     }
 
-                    $result .= "<div class=\"well citation\"><p>" . $authors . " (" . $date . "). " . $object . ". " . $site_name . ". <a href=" . $url. " alt=\"Persistent identifier for object " .
-                    $title . "\">" . $url . "</a>. (Accessed " . $today . ")</p>";
+                    $result .= "<div class=\"well citation\"><p>" . $authors . " (" . $date . "). " . $object . ". " . $site_name . ". <a href=" . $url . " alt=\"Persistent identifier for object " .
+                        $title . "\">" . $url . "</a>. (Accessed " . $today . ")</p>";
 
                     if (!empty($comment)) {
                         $result .= "<p class=\"comment\">" . $comment . "</p>";
                     }
 
-                    if (empty($overruling_authors) AND empty($overruling_date)) {
+                    if (empty($overruling_authors) and empty($overruling_date)) {
 
-                        $result .= "<p><i><small>Note: " . $message . "</small></i></p></div>";
-
+                        $result .= "<p><i><small>Note: " . $message . "</small></i></p>";
                     }
 
+                    // prepare related citation output
 
+                    if (!empty($related_citation_authors) and !empty($related_citation_title) and !empty($related_citation_date) and !empty($related_citation_publication) and !empty($related_citation_publisher)) {
+
+                        $related_citation = $related_citation_authors . " (" . $related_citation_date . "). " . $related_citation_title . ". <i>" . $related_citation_publication . "</i>. " . $related_citation_publisher . ". ";
+                    } elseif (!empty($related_citation_authors) and !empty($related_citation_title) and !empty($related_citation_date) and !empty($related_citation_publisher)) {
+
+                        $related_citation = $related_citation_authors . " (" . $related_citation_date . "). <i>" . $related_citation_title . "</i>. " . $related_citation_publisher . ". ";
+                    }
+
+                    if (!empty($related_citation_persistent_identifier)) {
+
+                        $related_citation .= $related_citation_persistent_identifier;
+                    }
+
+                    if (!empty($related_citation)) {
+
+                        $result .= "<p>When using this resource, please cite the following publication as well: </p>";
+
+                        $result .= "<p>" . $related_citation . "</p>";
+                    }
+
+                    if (!empty($related_citation_comment)) {
+                        $result .= "<p class=\"comment\">" . $related_citation_comment . "</p>";
+                    }
+
+                    $result .= "</div>";
                 }
-
-            }
-
-            else {
+            } else {
 
                 // info is somehow empty
                 //$result .= "<div class=\"flat-citation\"><p>" . $no_citation_message . "</p></div>";
                 $result = "";
-
             }
 
             return $result;
         }
-
     }
-
 }
