@@ -275,6 +275,32 @@ class CitationGenerator
     }
 
     /**
+     * function to turn persistent identifier into actionable link, if possible
+     * supporting doi: and hdl: prefixes
+     * 
+     * @param string $pid
+     * 
+     * @return string
+     */
+    public function pidToLink($pid)
+    {
+        $url = "";
+        if (stripos($pid, "http://") !== false OR stripos($pid, "https://") !== false) {
+            $url = $pid;
+        }
+        elseif (stripos($pid, "doi:") == 0) {
+            $url = str_ireplace("doi:", "https://doi.org/", $pid);
+        }
+        elseif (stripos($pid, "hdl:") == 0) {
+            $url = str_ireplace("hdl:", "https://hdl.handle.net/", $pid);
+        }
+        if (!empty($url)) {
+            return "<a href='" . $url . "' alt='Persistent identifier for related publication'>" . $pid . "</a>";
+        }
+        return $pid;
+    }
+
+    /**
      * Generating citation
      *
      * @param string $pid
@@ -413,9 +439,6 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Authors_ms', $info[$key])) {
 
                         $related_citation_authors = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Authors_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Authors_ms', $info[$key])) {
-
-                        $related_citation_authors = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Authors_ms'][0];
                     }
 
                     // date
@@ -425,9 +448,6 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Date_ms', $info[$key])) {
 
                         $related_citation_date = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Date_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Date_ms', $info[$key])) {
-
-                        $related_citation_date = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Date_ms'][0];
                     }
 
                     // title
@@ -437,9 +457,6 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Title_ms', $info[$key])) {
 
                         $related_citation_title = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Title_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Title_ms', $info[$key])) {
-
-                        $related_citation_title = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Title_ms'][0];
                     }
 
                     // publication
@@ -450,9 +467,6 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publication_ms', $info[$key])) {
 
                         $related_citation_publication = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Publication_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Publication_ms', $info[$key])) {
-
-                        $related_citation_publication = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Publication_ms'][0];
                     }
 
                     // publisher
@@ -463,9 +477,6 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms', $info[$key])) {
 
                         $related_citation_publisher = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Publisher_ms', $info[$key])) {
-
-                        $related_citation_publisher = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Publisher_ms'][0];
                     }
 
                     // PersistentIdentifier
@@ -476,9 +487,6 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
 
                         $related_citation_persistent_identifier = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
-
-                        $related_citation_persistent_identifier = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_PersistentIdentifier_ms'][0];
                     }
 
                     // comment
@@ -489,12 +497,10 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Comment_ms', $info[$key])) {
 
                         $related_citation_comment = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Comment_ms'][0];
-                    } elseif (array_key_exists('CMD_Components_lat-SL-corpus_RelatedCitation_Comment_ms', $info[$key])) {
-
-                        $related_citation_comment = $info[$key]['CMD_Components_lat-SL-corpus_RelatedCitation_Comment_ms'][0];
                     }
 
                     if (!empty($related_citation_authors)) {
+                        // assuming that all necessary related citation information is present
                         break;
                     }
                 }
@@ -940,7 +946,7 @@ class CitationGenerator
                         $message .= " Author information could not be extracted automatically for this resource.";
                     }
 
-                    $result .= "<div class=\"well citation\"><p>" . $authors . " (" . $date . "). " . $object . ". " . $site_name . ". <a href=" . $url . " alt=\"Persistent identifier for object " .
+                    $result .= "<div class=\"well citation\"><p class=\"citation\">" . $authors . " (" . $date . "). " . $object . ". " . $site_name . ". <a href=" . $url . " alt=\"Persistent identifier for object " .
                         $title . "\">" . $url . "</a>. (Accessed " . $today . ")</p>";
 
                     if (!empty($comment)) {
@@ -949,7 +955,7 @@ class CitationGenerator
 
                     if (empty($overruling_authors) and empty($overruling_date)) {
 
-                        $result .= "<p><i><small>Note: " . $message . "</small></i></p>";
+                        $result .= "<p><i>Note: " . $message . "</i></p>";
                     }
 
                     // prepare related citation output
@@ -964,14 +970,16 @@ class CitationGenerator
 
                     if (!empty($related_citation_persistent_identifier)) {
 
+                        $related_citation_persistent_identifier = $this->pidToLink($related_citation_persistent_identifier);
+
                         $related_citation .= $related_citation_persistent_identifier;
                     }
 
                     if (!empty($related_citation)) {
 
-                        $result .= "<p>When using this resource, please cite the following publication as well: </p>";
+                        $result .= "<p><i>In addition, please cite the following publication when using this resource:</i></p>";
 
-                        $result .= "<p>" . $related_citation . "</p>";
+                        $result .= "<p class=\"citation\">" . $related_citation . "</p>";
                     }
 
                     if (!empty($related_citation_comment)) {
