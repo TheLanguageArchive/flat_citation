@@ -439,6 +439,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Authors_ms', $info[$key])) {
 
                         $related_citation_authors = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Authors_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_Authors_ms', $info[$key])) {
+
+                        $related_citation_authors = $info[$key]['CMD_Components_lat-session_RelatedCitation_Authors_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Authors_ms', $info[$key])) {
+
+                        $related_citation_authors = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_Authors_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Authors_ms', $info[$key])) {
+
+                        $related_citation_authors = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_Authors_ms'][0];
                     }
 
                     // date
@@ -448,6 +457,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Date_ms', $info[$key])) {
 
                         $related_citation_date = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Date_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_Date_ms', $info[$key])) {
+
+                        $related_citation_date = $info[$key]['CMD_Components_lat-session_RelatedCitation_Date_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Date_ms', $info[$key])) {
+
+                        $related_citation_date = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_Date_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Date_ms', $info[$key])) {
+
+                        $related_citation_date = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_Date_ms'][0];
                     }
 
                     // title
@@ -457,6 +475,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Title_ms', $info[$key])) {
 
                         $related_citation_title = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Title_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_Title_ms', $info[$key])) {
+                    
+                        $related_citation_title = $info[$key]['CMD_Components_lat-session_RelatedCitation_Title_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Title_ms', $info[$key])) {
+                        
+                        $related_citation_title = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_Title_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Title_ms', $info[$key])) {
+                        
+                        $related_citation_title = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_Title_ms'][0];
                     }
 
                     // publication
@@ -467,6 +494,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publication_ms', $info[$key])) {
 
                         $related_citation_publication = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Publication_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_Publication_ms', $info[$key])) {
+                        
+                        $related_citation_publication = $info[$key]['CMD_Components_lat-session_RelatedCitation_Publication_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Publication_ms', $info[$key])) {
+                        
+                        $related_citation_publication = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_Publication_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Publication_ms', $info[$key])) {
+                        
+                        $related_citation_publication = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_Publication_ms'][0];
                     }
 
                     // publisher
@@ -477,6 +513,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms', $info[$key])) {
 
                         $related_citation_publisher = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Publisher_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_Publisher_ms', $info[$key])) {
+                        
+                        $related_citation_publisher = $info[$key]['CMD_Components_lat-session_RelatedCitation_Publisher_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Publisher_ms', $info[$key])) {
+                        
+                        $related_citation_publisher = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_Publisher_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Publisher_ms', $info[$key])) {
+                        
+                        $related_citation_publisher = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_Publisher_ms'][0];
                     }
 
                     // PersistentIdentifier
@@ -487,6 +532,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
 
                         $related_citation_persistent_identifier = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_PersistentIdentifier_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
+                        
+                        $related_citation_persistent_identifier = $info[$key]['CMD_Components_lat-session_RelatedCitation_PersistentIdentifier_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
+                        
+                        $related_citation_persistent_identifier = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_PersistentIdentifier_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_PersistentIdentifier_ms', $info[$key])) {
+                        
+                        $related_citation_persistent_identifier = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_PersistentIdentifier_ms'][0];
                     }
 
                     // comment
@@ -497,6 +551,15 @@ class CitationGenerator
                     } elseif (array_key_exists('CMD_Components_MPI_Collection_RelatedCitation_Comment_ms', $info[$key])) {
 
                         $related_citation_comment = $info[$key]['CMD_Components_MPI_Collection_RelatedCitation_Comment_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-session_RelatedCitation_Comment_ms', $info[$key])) {
+                        
+                        $related_citation_comment = $info[$key]['CMD_Components_lat-session_RelatedCitation_Comment_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_MPI_Bundle_RelatedCitation_Comment_ms', $info[$key])) {
+                        
+                        $related_citation_comment = $info[$key]['CMD_Components_MPI_Bundle_RelatedCitation_Comment_ms'][0];
+                    } elseif (array_key_exists('CMD_Components_lat-SL-session_RelatedCitation_Comment_ms', $info[$key])) {
+                        
+                        $related_citation_comment = $info[$key]['CMD_Components_lat-SL-session_RelatedCitation_Comment_ms'][0];
                     }
 
                     if (!empty($related_citation_authors)) {
@@ -960,9 +1023,42 @@ class CitationGenerator
 
                     // prepare related citation output
 
+                    // publication may include editors and page numbers, which should not be in italics
+                    if (!empty($related_citation_publication)) {
+                        $parts = preg_split('/\(Eds*\.?\)|\(pp\..+?\)/', $related_citation_publication);
+                        if (!empty($parts)) {
+                            // look for (Ed.) or (Eds.)
+                            preg_match('/\(Eds*\.?\)/', $related_citation_publication, $eds);
+                            // look for (pp.)
+                            preg_match('/\(pp\..+?\)/', $related_citation_publication, $pp);
+                            if (!empty($eds)) {
+                                // editors found
+                                $editors = $parts[0] . $eds[0];
+                                $title = $parts[1];
+                                $output = $editors . '<i>' . $title . '</i>';
+                            }
+                            elseif (!empty($pp)) {
+                                // no editors found but pages found
+                                $title = $parts[0];
+                                $output = '<i>' . $title . '</i>' . ' ' . $pp[0];
+                            }
+                            if (!empty($eds) and !empty($pp)) {
+                                // editors and pages found
+                                $output .= ' ' . $pp[0];
+                            }
+                            $related_citation_publication = $output;
+                        }
+
+                        // add a period at the end if not already there
+                        if (!preg_match('/\.$/', $related_citation_publication)){
+                            $related_citation_publication .= '.';
+                        }
+
+                    }
+
                     if (!empty($related_citation_authors) and !empty($related_citation_title) and !empty($related_citation_date) and !empty($related_citation_publication) and !empty($related_citation_publisher)) {
 
-                        $related_citation = $related_citation_authors . " (" . $related_citation_date . "). " . $related_citation_title . ". <i>" . $related_citation_publication . "</i>. " . $related_citation_publisher . ". ";
+                        $related_citation = $related_citation_authors . " (" . $related_citation_date . "). " . $related_citation_title . ". " . $related_citation_publication . " " . $related_citation_publisher . ". ";
                     } elseif (!empty($related_citation_authors) and !empty($related_citation_title) and !empty($related_citation_date) and !empty($related_citation_publisher)) {
 
                         $related_citation = $related_citation_authors . " (" . $related_citation_date . "). <i>" . $related_citation_title . "</i>. " . $related_citation_publisher . ". ";
